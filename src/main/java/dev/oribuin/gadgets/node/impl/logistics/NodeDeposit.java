@@ -1,4 +1,4 @@
-package dev.oribuin.gadgets.node.logistics;
+package dev.oribuin.gadgets.node.impl.logistics;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import dev.oribuin.gadgets.GadgetsPlugin;
@@ -11,12 +11,12 @@ import dev.oribuin.gadgets.gui.impl.node.ComplexNodeGui;
 import dev.oribuin.gadgets.node.Node;
 import dev.oribuin.gadgets.node.NodeFactory;
 import dev.oribuin.gadgets.node.NodeType;
-import dev.oribuin.gadgets.node.logistics.type.Depositing;
-import dev.oribuin.gadgets.node.logistics.type.FilterType;
-import dev.oribuin.gadgets.node.logistics.type.valued.Channelled;
-import dev.oribuin.gadgets.node.logistics.type.valued.Directional;
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
-import dev.oribuin.gadgets.node.logistics.type.valued.Priority;
+import dev.oribuin.gadgets.node.impl.logistics.type.Depositing;
+import dev.oribuin.gadgets.node.impl.logistics.type.FilterType;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Channelled;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Directional;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Priority;
 import dev.oribuin.gadgets.scheduler.PluginScheduler;
 import dev.oribuin.gadgets.util.InventoryUtils;
 import dev.oribuin.gadgets.util.PersistenceUtil;
@@ -33,7 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.Nullable;
 import org.jspecify.annotations.NonNull;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -1,6 +1,6 @@
-package dev.oribuin.gadgets.node.logistics.type.valued;
+package dev.oribuin.gadgets.node.impl.logistics.type.valued;
 
-import dev.oribuin.gadgets.node.logistics.type.FilterType;
+import dev.oribuin.gadgets.node.impl.logistics.type.FilterType;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

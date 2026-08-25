@@ -16,7 +16,6 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +75,13 @@ public abstract class Node extends EventHandler implements NodeEvents, NodeType.
      * @return The resulting {@link ItemStack}
      */
     public final ItemStack establishItem(Consumer<ItemStack> consumer, int quantity, Placeholders placeholders) {
-        ItemStack stack = this.item.create(placeholders);
+
+        ItemStack stack = this.item.create(Placeholders.builder()
+                .addAll(this.getPlaceholders().get())
+                .addAll(placeholders)
+                .build()
+        );
+        
         if (!stack.hasItemMeta()) return null;
 
         // Add the item id to the node

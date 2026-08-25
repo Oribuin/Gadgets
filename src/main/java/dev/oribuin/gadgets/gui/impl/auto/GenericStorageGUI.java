@@ -4,7 +4,7 @@ import dev.oribuin.gadgets.GadgetsPlugin;
 import dev.oribuin.gadgets.config.gui.GuiConfig;
 import dev.oribuin.gadgets.gui.api.GuiTickable;
 import dev.oribuin.gadgets.gui.api.PluginMenu;
-import dev.oribuin.gadgets.node.logistics.StorageNode;
+import dev.oribuin.gadgets.node.impl.logistics.StorageNode;
 import dev.oribuin.gadgets.util.MessageHandler;
 import dev.oribuin.gadgets.util.PersistenceUtil;
 import dev.oribuin.gadgets.util.Placeholders;

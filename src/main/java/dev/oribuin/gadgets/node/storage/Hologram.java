@@ -8,11 +8,16 @@ import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
+
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import java.util.UUID;
 
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ALIGNMENT;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BACKGROUND;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BILLBOARD;
+import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ENTITY;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_POSITION;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ROTATION;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_SCALE;
@@ -60,7 +65,7 @@ public class Hologram {
         this.textShadow = true;
         this.display = null;
     }
-
+    
     public static Hologram from(HologramProjector projector) {
         Location position = projector.getValue(HOLOGRAM_POSITION);
         String text = projector.getValue(HOLOGRAM_TEXT);
@@ -71,11 +76,20 @@ public class Hologram {
         hologram.setScale(projector.getValue(HOLOGRAM_SCALE, 1.0));
         hologram.setTextShadow(projector.getValue(HOLOGRAM_SHADOW, true));
         hologram.setRotation(projector.getValue(HOLOGRAM_ROTATION, Rotation.NORTH));
+
+        // Add the existing display
+        UUID display = projector.getValue(HOLOGRAM_ENTITY);
+        if (display != null && position != null) {
+            Entity entity = position.getWorld().getEntity(display);
+            if (entity instanceof TextDisplay textDisplay) hologram.setDisplay(textDisplay);
+        }
+
         return hologram;
     }
 
-
     public void update() {
+        if (this.location == null) return;
+
         if (this.display == null || this.display.isDead()) {
             this.display = this.location.getWorld().spawn(this.location, TextDisplay.class);
         }
@@ -83,10 +97,10 @@ public class Hologram {
         this.rotation.apply(this.location);
         this.display.teleport(this.location);
         this.display.text(MiniMessage.builder().tags(RESOLVER).build().deserialize(this.text));
-        this.display.setBackgroundColor(this.background ? DEFAULT_BACKGROUND : Color.fromRGB(0));
+        this.display.setDefaultBackground(this.background);
         this.display.setBillboard(this.billboard);
-        this.display.setDisplayWidth((float) Math.min(Math.max(this.scale, 0.5), 2.0));
-        this.display.setDisplayHeight((float) Math.min(Math.max(this.scale, 0.5), 2.0));
+        this.display.setDisplayWidth((float) Math.clamp(this.scale, 0.5, 2.0));
+        this.display.setDisplayHeight((float) Math.clamp(this.scale, 0.5, 2.0));
         this.display.setShadowed(this.textShadow);
         this.display.setAlignment(this.alignment);
     }

@@ -1,4 +1,4 @@
-package dev.oribuin.gadgets.node.logistics;
+package dev.oribuin.gadgets.node.impl.logistics;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import dev.oribuin.gadgets.GadgetsPlugin;

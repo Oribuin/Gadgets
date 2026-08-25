@@ -15,7 +15,6 @@ import dev.oribuin.gadgets.util.InventoryUtils;
 import dev.oribuin.gadgets.util.MessageHandler;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
-import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -207,7 +206,7 @@ public class BarrelGUI extends PluginMenu<BarrelGUI.BarrelGUIConfig, Gui> implem
         if (storedAmount <= 0) {
             GuiIcon clearType = this.getConfig().getClearStorageItem();
             this.gui.setItem(clearType.getSlots(), clearType.withAction(
-                    storageBarrel.getPlaceholders().get() ,
+                    storageBarrel.getPlaceholders().get(),
                     event -> {
                         this.getConfig().getClearedBarrel().send(event.getWhoClicked());
                         storageBarrel.setValue(BARREL_AMOUNT, 0);
@@ -284,7 +283,7 @@ public class BarrelGUI extends PluginMenu<BarrelGUI.BarrelGUIConfig, Gui> implem
                 .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9327"))
                 .asMenuItem(11);
 
-        private GuiIcon withdrawStack =ItemConstruct.of(Material.PLAYER_HEAD)
+        private GuiIcon withdrawStack = ItemConstruct.of(Material.PLAYER_HEAD)
                 .setName("<red>Withdraw Stack")
                 .setLore(
                         "",
@@ -305,7 +304,7 @@ public class BarrelGUI extends PluginMenu<BarrelGUI.BarrelGUIConfig, Gui> implem
                 .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-10153"))
                 .asMenuItem(4);
 
-        private GuiIcon clearStorageItem =ItemConstruct.of(Material.PLAYER_HEAD)
+        private GuiIcon clearStorageItem = ItemConstruct.of(Material.PLAYER_HEAD)
                 .setName("<#93bc80>Clear Stored Type")
                 .setLore(
                         "",
@@ -316,7 +315,7 @@ public class BarrelGUI extends PluginMenu<BarrelGUI.BarrelGUIConfig, Gui> implem
                 )
                 .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9865"))
                 .asMenuItem(15);
-        
+
         private GuiIcon inputBelowIcon = ItemConstruct.of(Material.PLAYER_HEAD)
                 .setName("<green>Input Item Below")
                 .setLore(

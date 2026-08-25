@@ -2,7 +2,7 @@ package dev.oribuin.gadgets.container.impl;
 
 import dev.oribuin.gadgets.container.ContainerWrapper;
 import dev.oribuin.gadgets.container.VanillaWrapper;
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 import dev.oribuin.gadgets.util.InventoryUtils;
 import dev.oribuin.gadgets.util.block.FinePosition;
 import org.bukkit.Bukkit;

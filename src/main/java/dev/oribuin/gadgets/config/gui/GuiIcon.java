@@ -28,7 +28,8 @@ public class GuiIcon {
 
     public GuiIcon(ItemConstruct construct, Integer... slots) {
         this.item = construct;
-        this.slots = List.of(slots);
+        this.slots = new ArrayList<>(List.of(slots));
+        this.slots.removeIf(integer -> integer < 0 || integer >= 54);
     }
 
     @NotNull

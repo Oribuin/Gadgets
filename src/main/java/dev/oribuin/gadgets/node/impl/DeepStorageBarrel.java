@@ -10,7 +10,7 @@ import dev.oribuin.gadgets.node.GadgetType;
 import dev.oribuin.gadgets.node.Node;
 import dev.oribuin.gadgets.node.NodeFactory;
 import dev.oribuin.gadgets.node.NodeType.Serializer;
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 import dev.oribuin.gadgets.scheduler.PluginScheduler;
 import dev.oribuin.gadgets.util.PersistenceUtil;
 import dev.oribuin.gadgets.util.Placeholders;
@@ -32,7 +32,6 @@ import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.Nullable;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.Optional;
 import java.util.function.Supplier;

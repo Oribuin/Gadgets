@@ -1,28 +1,265 @@
 package dev.oribuin.gadgets.gui.impl.manual;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.oribuin.gadgets.GadgetsPlugin;
+import dev.oribuin.gadgets.config.TextMessage;
 import dev.oribuin.gadgets.config.gui.GuiConfig;
 import dev.oribuin.gadgets.config.gui.GuiIcon;
 import dev.oribuin.gadgets.config.item.ConstructType;
 import dev.oribuin.gadgets.config.item.ItemConstruct;
 import dev.oribuin.gadgets.config.item.component.TooltipItemType;
 import dev.oribuin.gadgets.gui.api.PluginMenu;
+import dev.oribuin.gadgets.node.NodeFactory;
+import dev.oribuin.gadgets.node.impl.HologramProjector;
+import dev.oribuin.gadgets.node.storage.Hologram;
+import dev.oribuin.gadgets.scheduler.PluginScheduler;
 import dev.oribuin.gadgets.util.MessageHandler;
+import dev.oribuin.gadgets.util.Placeholders;
 import dev.triumphteam.gui.guis.Gui;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_TEXT;
+
 public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.HologramProjectorGuiConfig, Gui> {
+
+    private static final Cache<UUID, Block> pendingHologram = CacheBuilder.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
+
+    private final Supplier<HologramProjector> projectorSupplier;
+
+    static {
+        Bukkit.getPluginManager().registerEvents(
+                new HologramTextListener(GadgetsPlugin.get()),
+                GadgetsPlugin.get()
+        );
+    }
 
     /**
      * Creates a new menu for the plugin to use
      *
      * @param plugin The plugin instance
      */
-    public HologramProjectorGUI(GadgetsPlugin plugin) {
+    public HologramProjectorGUI(GadgetsPlugin plugin, Supplier<HologramProjector> projectorSupplier) {
         super(plugin, HologramProjectorGuiConfig.class);
+        this.projectorSupplier = projectorSupplier;
+        this.gui = this.createMenu().get();
+
+        // Set GUI Icons & Functionality
+        this.setDummyIcons();
+
+        Placeholders placeholders = projectorSupplier.get().getPlaceholders().get();
+
+        // region Change Hologram Text
+        GuiIcon textChange = this.getConfig().getTextChange();
+        gui.setItem(textChange.getSlots(), textChange.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            pendingHologram.put(player.getUniqueId(), block);
+            this.getConfig().getChangeText().send(player);
+            player.closeInventory();
+        }));
+        // endregion
+        // region Change Text Alignment
+        GuiIcon textAlignment = this.getConfig().getTextAlignment();
+        gui.setItem(textAlignment.getSlots(), textAlignment.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            TextDisplay.TextAlignment current = hologram.getAlignment();
+            TextDisplay.TextAlignment[] values = TextDisplay.TextAlignment.values();
+            int nextOrdinal = (current.ordinal() + 1) % values.length;
+            TextDisplay.TextAlignment next = values[nextOrdinal];
+            hologram.setAlignment(next);
+            projector.update(hologram);
+            player.closeInventory();
+        }));
+        // endregion
+        // region Change Text Shadow
+        GuiIcon textShadow = this.getConfig().getTextShadow();
+        gui.setItem(textShadow.getSlots(), textShadow.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            hologram.setTextShadow(!hologram.getTextShadow());
+            projector.update(hologram);
+            player.closeInventory();
+        }));
+        // endregion
+        // region Change Text Background
+        GuiIcon textBackground = this.getConfig().getTextBackground();
+        gui.setItem(textBackground.getSlots(), textBackground.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            hologram.setBackground(!hologram.getBackground());
+            projector.update(hologram);
+            player.closeInventory();
+        }));
+        // endregion
+        // region Change Text Billboard
+        GuiIcon textBillboard = this.getConfig().getTextBillboard();
+        gui.setItem(textBillboard.getSlots(), textBillboard.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            Display.Billboard current = hologram.getBillboard();
+            Display.Billboard[] values = Display.Billboard.values();
+            int nextOrdinal = (current.ordinal() + 1) % values.length;
+            Display.Billboard next = values[nextOrdinal];
+            hologram.setBillboard(next);
+            projector.update(hologram);
+            player.closeInventory();
+        }));
+        // endregion
+        // region Change Text Scale
+        GuiIcon textScale = this.getConfig().getTextScale();
+        gui.setItem(textScale.getSlots(), textScale.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            double scale = hologram.getScale();
+
+            if (event.isLeftClick()) scale = Math.min(5.0, scale + 0.25);
+            if (event.isRightClick()) scale = Math.max(0.5, scale - 0.25);
+            hologram.setScale(scale);
+            projector.update(hologram);
+            
+            new HologramProjectorGUI(plugin, this.projectorSupplier).open(player);
+        }));
+        // endregion
+        // region Change Text Rotation
+        GuiIcon textRotation = this.getConfig().getTextRotation();
+        gui.setItem(textRotation.getSlots(), textRotation.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            Hologram.Rotation current = hologram.getRotation();
+            Hologram.Rotation[] values = Hologram.Rotation.values();
+            int nextOrdinal = (current.ordinal() + 1) % values.length;
+            Hologram.Rotation next = values[nextOrdinal];
+            hologram.setRotation(next);
+            projector.update(hologram);
+            player.closeInventory();
+        }));
+        // endregion
+    }
+
+
+    public static class HologramTextListener implements Listener {
+
+        private final GadgetsPlugin plugin;
+
+        public HologramTextListener(GadgetsPlugin plugin) {
+            this.plugin = plugin;
+        }
+
+        /**
+         * Listen for chat events for holograms being read
+         *
+         * @param event The chat event
+         */
+        @SuppressWarnings("deprecation")
+        @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
+        public void onChat(AsyncPlayerChatEvent event) {
+            Block awaitedProjector = pendingHologram.getIfPresent(event.getPlayer().getUniqueId());
+            if (awaitedProjector == null) return;
+
+            // Cancel the event
+            event.setCancelled(true);
+
+            removePending(event.getPlayer().getUniqueId());
+            if (!(NodeFactory.from(awaitedProjector) instanceof HologramProjector projector)) return;
+
+            // Check if the message is "cancel"
+            if (event.getMessage().equalsIgnoreCase("cancel")) {
+                this.getConfig().getCancelledText().send(event.getPlayer());
+                return;
+            }
+
+            Hologram hologram = projector.getHologram();
+            PluginScheduler.get().runTaskAtLocation(hologram.getLocation(), () -> {
+                hologram.setText(event.getMessage());
+                projector.setValue(HOLOGRAM_TEXT, hologram.getText());
+                projector.update(hologram);
+            });
+            this.getConfig().getChangedText().send(event.getPlayer(), "text", event.getMessage());
+        }
+
+        public HologramProjectorGuiConfig getConfig() {
+            return this.plugin.getLoader().get(HologramProjectorGuiConfig.class);
+        }
     }
 
     /**
@@ -39,77 +276,139 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
                 .create();
     }
 
+    public static void removePending(UUID uuid) {
+        pendingHologram.invalidate(uuid);
+    }
+
     @ConfigSerializable
     @SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal"})
     public static class HologramProjectorGuiConfig extends GuiConfig {
 
         public HologramProjectorGuiConfig() {
             this.title = "Hologram Projector";
-            this.rows = 6;
+            this.rows = 5;
 
             this.dummyItems.add(ItemConstruct.of(Material.BLACK_STAINED_GLASS_PANE)
                     .setProperty(ConstructType.TOOLTIP, TooltipItemType.HIDDEN)
-                    .asMenuItem(0, 1, 2, 6, 7, 8,
-                            9, 10, 11, 15, 16, 17,
-                            18, 19, 20, 24, 25, 26
+                    .asMenuItem(0, 1, 2, 3, 4, 5, 6, 7, 8,
+                            9, 17,
+                            18, 26,
+                            27, 35,
+                            36, 37, 38, 39, 40, 41, 42, 43, 44
                     ));
-
-            this.dummyItems.add(ItemConstruct.of(Material.LIME_STAINED_GLASS_PANE)
-                    .setProperty(ConstructType.TOOLTIP, TooltipItemType.HIDDEN)
-                    .asMenuItem(                    3, 4, 5,
-                    12, 14,
-                    21, 22, 23
-            ));
         }
 
-        private GuiIcon depositSingle = ItemConstruct.of(Material.PLAYER_HEAD)
-                .setName("<green>Deposit 1")
-                .setLore(
-                        "",
-                        "<white>⏩ <green>Left click<white> to deposit one item"
-                )
-                .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9865"))
-                .asMenuItem(15);
+        private TextMessage cancelledText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>You have cancelled setting the hologram text");
+        private TextMessage changedText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>You have changed the hologram text: <#93bc80><text>").papi(false);
+        private TextMessage changeText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>Enter your desired hologram text in the chat");
 
-        private GuiIcon depositStack = ItemConstruct.of(Material.PLAYER_HEAD)
-                .setName("<green>Deposit Stack")
+        private GuiIcon textChange = ItemConstruct.of(Material.NAME_TAG)
+                .setName("<#93bc80><b>Change Text")
                 .setLore(
                         "",
-                        "<white>⏩ <green>Right click<white> to deposit a stack"
+                        "<white>⏩ <#93bc80>Left click<white> to change the hologram text"
                 )
-                .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9864"))
-                .asMenuItem(16);
-
-        private GuiIcon withdrawSingle = ItemConstruct.of(Material.PLAYER_HEAD)
-                .setName("<red>Withdraw 1")
-                .setLore(
-                        "",
-                        "<white>⏩ <red>Left click<white> to withdraw one item"
-                )
-                .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9327"))
-                .asMenuItem(11);
-
-        private GuiIcon withdrawStack =ItemConstruct.of(Material.PLAYER_HEAD)
-                .setName("<red>Withdraw Stack")
-                .setLore(
-                        "",
-                        "<white>⏩ <red>Right click<white> to withdraw a stack"
-                )
-                .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-9326"))
                 .asMenuItem(10);
 
-        private GuiIcon infoItem = ItemConstruct.of(Material.PLAYER_HEAD)
-                .setName("<#93bc80>Barrel Information")
+        private GuiIcon textAlignment = ItemConstruct.of(Material.PAINTING)
+                .setName("<#93bc80><b>Alignment")
                 .setLore(
                         "",
-                        "<#93bc80>▎ <white>Current Stored Type: <#93bc80><type>",
-                        "<#93bc80>▎ <white>Stored Amount: <#93bc80><amount>",
-                        "<#93bc80>▎ <white>Max Amount: <#93bc80><max>",
-                        ""
+                        "<#93bc80>▎ <white>Current: <#93bc80><alignment>",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to change alignment"
                 )
-                .setProperty(ConstructType.TEXTURE, x -> x.setValue("hdb-10153"))
-                .asMenuItem(4);
+                .asMenuItem(11);
 
+        private GuiIcon textShadow = ItemConstruct.of(Material.TINTED_GLASS)
+                .setName("<#93bc80><b>Text Shadow")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Current: <#93bc80><shadow>",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to toggle the text shadow"
+                )
+                .asMenuItem(19);
+
+        private GuiIcon textBackground = ItemConstruct.of(Material.BLACK_DYE)
+                .setName("<#93bc80><b>Background")
+                .setLore(
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to toggle the background"
+                )
+                .asMenuItem(20);
+
+        private GuiIcon textScale = ItemConstruct.of(Material.SLIME_BALL)
+                .setName("<#93bc80><b>Scale")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Current: <#93bc80><scale>",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> increase the scale",
+                        "<white>⏩ <#93bc80>Right click<white> decrease the scale"
+                )
+                .asMenuItem(28);
+
+        private GuiIcon textBillboard = ItemConstruct.of(Material.OAK_HANGING_SIGN)
+                .setName("<#93bc80><b>Billboard")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Current: <#93bc80><billboard>",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> change the billboard"
+                )
+                .asMenuItem(29);
+
+
+        private GuiIcon textRotation = ItemConstruct.of(Material.TINTED_GLASS)
+                .setName("<#93bc80><b>Text Rotation")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Current: <#93bc80><rotation>",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to rotate the hologram"
+                )
+                .asMenuItem(22);
+
+        public TextMessage getCancelledText() {
+            return cancelledText;
+        }
+
+        public TextMessage getChangedText() {
+            return changedText;
+        }
+
+        public GuiIcon getTextChange() {
+            return textChange;
+        }
+
+        public TextMessage getChangeText() {
+            return changeText;
+        }
+
+        public GuiIcon getTextAlignment() {
+            return textAlignment;
+        }
+
+        public GuiIcon getTextShadow() {
+            return textShadow;
+        }
+
+        public GuiIcon getTextBackground() {
+            return textBackground;
+        }
+
+        public GuiIcon getTextBillboard() {
+            return textBillboard;
+        }
+
+        public GuiIcon getTextScale() {
+            return textScale;
+        }
+
+        public GuiIcon getTextRotation() {
+            return textRotation;
+        }
     }
 //
 //    private static final Pattern PLACEHOLDER_API = Pattern.compile("%(\\w+)%");

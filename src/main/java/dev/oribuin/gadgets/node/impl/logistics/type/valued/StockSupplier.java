@@ -1,4 +1,4 @@
-package dev.oribuin.gadgets.node.logistics.type.valued;
+package dev.oribuin.gadgets.node.impl.logistics.type.valued;
 
 public interface StockSupplier {
 

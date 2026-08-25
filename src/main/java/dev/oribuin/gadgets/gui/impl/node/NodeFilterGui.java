@@ -8,9 +8,9 @@ import dev.oribuin.gadgets.config.item.ConstructType;
 import dev.oribuin.gadgets.config.item.ItemConstruct;
 import dev.oribuin.gadgets.config.item.component.TooltipItemType;
 import dev.oribuin.gadgets.gui.api.PluginMenu;
-import dev.oribuin.gadgets.node.logistics.Networked;
-import dev.oribuin.gadgets.node.logistics.type.FilterType;
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.Networked;
+import dev.oribuin.gadgets.node.impl.logistics.type.FilterType;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 import dev.oribuin.gadgets.util.MessageHandler;
 import dev.oribuin.gadgets.util.Placeholders;
 import dev.triumphteam.gui.guis.Gui;
@@ -172,9 +172,9 @@ public class NodeFilterGui extends PluginMenu<NodeFilterGui.NodeFilterGuiConfig,
 
         private int filterLimit = 14;
 
-        private TextMessage filterLimitReached = new TextMessage("<#94bc80><b>Gadgets</b> <dark_gray>▎▎| <white>You have reached the filter limit of <#fbf679><filter-limit> items!");
+        private TextMessage filterLimitReached = new TextMessage("<#94bc80><b>Gadgets</b> <dark_gray>▎ <white>You have reached the filter limit of <#fbf679><filter-limit> items!");
 
-        private TextMessage clickInventoryItem = new TextMessage("<#93bc80><b>CYG</b> <dark_gray>| <white>Click an item in your inventory to add to the filter! Don't close the GUI to do this");
+        private TextMessage clickInventoryItem = new TextMessage("<#93bc80><b>Gadgets</b> <dark_gray>▎ <white>Click an item in your inventory to add to the filter! Don't close the GUI to do this");
 
         private List<String> entryLore = List.of(
                 "",

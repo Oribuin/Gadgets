@@ -1,6 +1,6 @@
-package dev.oribuin.gadgets.node.logistics.type;
+package dev.oribuin.gadgets.node.impl.logistics.type;
 
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.BiPredicate;

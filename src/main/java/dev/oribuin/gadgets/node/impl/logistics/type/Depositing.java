@@ -1,9 +1,9 @@
-package dev.oribuin.gadgets.node.logistics.type;
+package dev.oribuin.gadgets.node.impl.logistics.type;
 
 import dev.oribuin.gadgets.container.transaction.ItemTransferRequest;
 import dev.oribuin.gadgets.node.Node;
-import dev.oribuin.gadgets.node.logistics.type.valued.Channelled;
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Channelled;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 
 /**
  * Class to mark a {@link Node} as depositing items into a container

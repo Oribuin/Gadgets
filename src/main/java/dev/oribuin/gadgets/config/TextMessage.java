@@ -123,10 +123,10 @@ public class TextMessage {
      * Send a message to players with
      *
      * @param audience     The audience to send the message to
-     * @param Placeholders The plugin defined Placeholders
+     * @param placeholders The plugin defined Placeholders
      */
-    public void send(Audience audience, Object... Placeholders) {
-        this.send(audience, null, Placeholders);
+    public void send(Audience audience, Object... placeholders) {
+        this.send(audience, null, placeholders);
     }
 
     /**

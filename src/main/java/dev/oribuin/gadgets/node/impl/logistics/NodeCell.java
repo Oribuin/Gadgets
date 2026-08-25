@@ -1,4 +1,4 @@
-package dev.oribuin.gadgets.node.logistics;
+package dev.oribuin.gadgets.node.impl.logistics;
 
 import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 

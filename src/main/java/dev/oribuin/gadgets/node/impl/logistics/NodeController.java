@@ -1,4 +1,4 @@
-package dev.oribuin.gadgets.node.logistics;
+package dev.oribuin.gadgets.node.impl.logistics;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import dev.oribuin.gadgets.container.ContainerProvider;
@@ -8,9 +8,9 @@ import dev.oribuin.gadgets.gadgets.executor.ContextProvider;
 import dev.oribuin.gadgets.node.Node;
 import dev.oribuin.gadgets.node.NodeFactory;
 import dev.oribuin.gadgets.node.NodeType;
-import dev.oribuin.gadgets.node.logistics.type.Storable;
-import dev.oribuin.gadgets.node.logistics.type.Tickable;
-import dev.oribuin.gadgets.node.logistics.type.valued.Directional;
+import dev.oribuin.gadgets.node.impl.logistics.type.Storable;
+import dev.oribuin.gadgets.node.impl.logistics.type.Tickable;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Directional;
 import dev.oribuin.gadgets.node.storage.NodeProvider;
 import dev.oribuin.gadgets.util.InventoryUtils;
 import dev.oribuin.gadgets.util.PersistenceUtil;
@@ -28,9 +28,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

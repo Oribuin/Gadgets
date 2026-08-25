@@ -1,17 +1,15 @@
 package dev.oribuin.gadgets.node;
 
 import com.jeff_media.morepersistentdatatypes.DataType;
-import dev.oribuin.gadgets.GadgetsPlugin;
 import dev.oribuin.gadgets.node.impl.DeepStorageBarrel;
 import dev.oribuin.gadgets.node.impl.EnhancedFurnace;
 import dev.oribuin.gadgets.node.impl.HologramProjector;
 import dev.oribuin.gadgets.node.impl.LavaSponge;
-import dev.oribuin.gadgets.node.logistics.Networked;
-import dev.oribuin.gadgets.node.logistics.NodeConnector;
-import dev.oribuin.gadgets.node.logistics.NodeController;
-import dev.oribuin.gadgets.node.logistics.NodeDeposit;
-import dev.oribuin.gadgets.node.logistics.NodeGrid;
-import dev.oribuin.gadgets.node.logistics.NodeWithdraw;
+import dev.oribuin.gadgets.node.impl.logistics.NodeConnector;
+import dev.oribuin.gadgets.node.impl.logistics.NodeController;
+import dev.oribuin.gadgets.node.impl.logistics.NodeDeposit;
+import dev.oribuin.gadgets.node.impl.logistics.NodeGrid;
+import dev.oribuin.gadgets.node.impl.logistics.NodeWithdraw;
 import dev.oribuin.gadgets.node.storage.NodeProvider;
 import dev.oribuin.gadgets.util.PersistenceUtil;
 import dev.oribuin.gadgets.util.block.FinePosition;
@@ -19,9 +17,7 @@ import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.configurate.objectmapping.ConfigSerializable;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;

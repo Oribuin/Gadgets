@@ -1,6 +1,6 @@
 package dev.oribuin.gadgets.container;
 
-import dev.oribuin.gadgets.node.logistics.type.valued.Filtered;
+import dev.oribuin.gadgets.node.impl.logistics.type.valued.Filtered;
 import dev.oribuin.gadgets.util.block.FinePosition;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;

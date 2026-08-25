@@ -6,7 +6,7 @@ import dev.oribuin.gadgets.config.item.ConstructType;
 import dev.oribuin.gadgets.config.item.ItemConstruct;
 import dev.oribuin.gadgets.config.item.component.TooltipItemType;
 import dev.oribuin.gadgets.gui.api.PluginMenu;
-import dev.oribuin.gadgets.node.logistics.NodeController;
+import dev.oribuin.gadgets.node.impl.logistics.NodeController;
 import dev.oribuin.gadgets.util.MessageHandler;
 import dev.triumphteam.gui.guis.Gui;
 import org.bukkit.Material;

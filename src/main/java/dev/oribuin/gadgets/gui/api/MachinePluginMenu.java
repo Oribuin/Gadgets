@@ -2,7 +2,7 @@ package dev.oribuin.gadgets.gui.api;
 
 import dev.oribuin.gadgets.GadgetsPlugin;
 import dev.oribuin.gadgets.config.gui.GuiConfig;
-import dev.oribuin.gadgets.node.logistics.type.Tickable;
+import dev.oribuin.gadgets.node.impl.logistics.type.Tickable;
 import dev.triumphteam.gui.guis.BaseGui;
 
 public abstract class MachinePluginMenu<T extends GuiConfig, Z extends BaseGui> extends PluginMenu<T, Z> implements Tickable {

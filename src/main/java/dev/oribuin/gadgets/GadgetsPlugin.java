@@ -7,6 +7,7 @@ import dev.oribuin.gadgets.config.impl.Config;
 import dev.oribuin.gadgets.config.impl.MySQLConfig;
 import dev.oribuin.gadgets.config.impl.PluginMessages;
 import dev.oribuin.gadgets.gadgets.GadgetFactory;
+import dev.oribuin.gadgets.gui.impl.manual.HologramProjectorGUI;
 import dev.oribuin.gadgets.hook.HeadDbProvider;
 import dev.oribuin.gadgets.listener.CustomBlockListener;
 import dev.oribuin.gadgets.listener.ItemListener;
