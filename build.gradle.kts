@@ -57,7 +57,6 @@ dependencies {
     compileOnly("com.arcaniax:HeadDatabase-API:1.3.2")
     compileOnly("com.palmergames.bukkit.towny:towny:0.99.5.0")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("net.coreprotect:coreprotect:21.3")
     compileOnly("com.nexomc:nexo:1.8.0")
 }
 
