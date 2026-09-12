@@ -1,6 +1,7 @@
 package dev.oribuin.gadgets.node;
 
 import com.jeff_media.customblockdata.CustomBlockData;
+import dev.oribuin.gadgets.GadgetsPlugin;
 import dev.oribuin.gadgets.api.event.EventHandler;
 import dev.oribuin.gadgets.api.event.NodeEvents;
 import dev.oribuin.gadgets.config.item.ItemConstruct;
@@ -210,7 +211,10 @@ public abstract class Node extends EventHandler implements NodeEvents, NodeType.
     @SuppressWarnings("unchecked")
     public <T> T setValue(GadgetType<?, T> gadgetType, @Nullable T value) {
         NodeValue<?> nodeValue = this.nodeValues.get(gadgetType);
-        if (nodeValue == null) return null;
+        if (nodeValue == null) {
+            GadgetsPlugin.get().getLogger().warning("Gadget Type[" + gadgetType.namespace() + "] is not registered as a note value");
+            return  null;
+        }
 
         NodeValue<T> result = (NodeValue<T>) nodeValue;
         result.setValue(value);

@@ -73,6 +73,7 @@ public class HologramProjector extends Node implements Placeholder {
         this.registerType(HOLOGRAM_BACKGROUND, true);
         this.registerType(HOLOGRAM_BILLBOARD, Display.Billboard.VERTICAL);
         this.registerType(HOLOGRAM_ALIGNMENT, TextDisplay.TextAlignment.CENTER);
+        this.registerType(HOLOGRAM_ROTATION, Hologram.Rotation.NORTH);
         this.registerType(HOLOGRAM_SCALE, 1.0);
         this.registerType(HOLOGRAM_SHADOW, true);
         this.hologram = Hologram.from(this);
@@ -86,7 +87,9 @@ public class HologramProjector extends Node implements Placeholder {
      */
     public void update(Hologram hologram) {
         this.hologram = hologram;
+        
         // region Apply the hologram changes
+        this.hologram.update();
         this.setValue(HOLOGRAM_ALIGNMENT, hologram.getAlignment());
         this.setValue(HOLOGRAM_ROTATION, hologram.getRotation());
         this.setValue(HOLOGRAM_BACKGROUND, hologram.getBackground());
@@ -96,7 +99,6 @@ public class HologramProjector extends Node implements Placeholder {
         this.setValue(HOLOGRAM_TEXT, hologram.getText());
         this.setValue(HOLOGRAM_SHADOW, hologram.getTextShadow());
         // endregion
-        this.hologram.update(); // Hologram#update might spawn in a new display
         
         TextDisplay display = this.hologram.getDisplay();
         this.setValue(HOLOGRAM_ENTITY, display != null ? display.getUniqueId() : null);

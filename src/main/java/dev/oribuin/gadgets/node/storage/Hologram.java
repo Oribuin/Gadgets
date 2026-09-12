@@ -93,7 +93,7 @@ public class Hologram {
         if (this.display == null || this.display.isDead()) {
             this.display = this.location.getWorld().spawn(this.location, TextDisplay.class);
         }
-
+        
         this.rotation.apply(this.location);
         this.display.teleport(this.location);
         this.display.text(MiniMessage.builder().tags(RESOLVER).build().deserialize(this.text));

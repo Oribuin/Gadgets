@@ -61,7 +61,7 @@ public class CellStorageContainer {
 //        int current = 0;
 //        Map<Integer, ItemStack> content = new HashMap<>(this.node.getValue(NODE_INVENTORY, new HashMap<>()));
 //        int size = this.node.getValue(NODE_INVENTORY_ROWS, 0) * 9;
-//        for (int i = 0; i < size; i++) {
+//        for (int i = 0; i < size; i++) 
 //            ItemStack itemStack = content.get(i);
 //
 //            if (current == amount) break;
