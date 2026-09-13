@@ -33,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ALIGNMENT;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BACKGROUND;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BILLBOARD;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ENTITY;
@@ -72,9 +71,8 @@ public class HologramProjector extends Node implements Placeholder {
         this.registerType(HOLOGRAM_TEXT, "Change Me");
         this.registerType(HOLOGRAM_BACKGROUND, true);
         this.registerType(HOLOGRAM_BILLBOARD, Display.Billboard.VERTICAL);
-        this.registerType(HOLOGRAM_ALIGNMENT, TextDisplay.TextAlignment.CENTER);
         this.registerType(HOLOGRAM_ROTATION, Hologram.Rotation.NORTH);
-        this.registerType(HOLOGRAM_SCALE, 1.0);
+        this.registerType(HOLOGRAM_SCALE, 1.0f);
         this.registerType(HOLOGRAM_SHADOW, true);
         this.hologram = Hologram.from(this);
         // endregion
@@ -87,10 +85,9 @@ public class HologramProjector extends Node implements Placeholder {
      */
     public void update(Hologram hologram) {
         this.hologram = hologram;
-        
+
         // region Apply the hologram changes
         this.hologram.update();
-        this.setValue(HOLOGRAM_ALIGNMENT, hologram.getAlignment());
         this.setValue(HOLOGRAM_ROTATION, hologram.getRotation());
         this.setValue(HOLOGRAM_BACKGROUND, hologram.getBackground());
         this.setValue(HOLOGRAM_BILLBOARD, hologram.getBillboard());
@@ -99,7 +96,7 @@ public class HologramProjector extends Node implements Placeholder {
         this.setValue(HOLOGRAM_TEXT, hologram.getText());
         this.setValue(HOLOGRAM_SHADOW, hologram.getTextShadow());
         // endregion
-        
+
         TextDisplay display = this.hologram.getDisplay();
         this.setValue(HOLOGRAM_ENTITY, display != null ? display.getUniqueId() : null);
         this.serialize();
@@ -149,7 +146,6 @@ public class HologramProjector extends Node implements Placeholder {
         }
 
         this.resetValues(
-                HOLOGRAM_ALIGNMENT,
                 HOLOGRAM_BACKGROUND,
                 HOLOGRAM_BILLBOARD,
                 HOLOGRAM_ENTITY,
@@ -209,7 +205,6 @@ public class HologramProjector extends Node implements Placeholder {
         return () -> Placeholders.of(
                 "rotation", MessageHandler.getNiceEnum(this.hologram.getRotation()),
                 "billboard", MessageHandler.getNiceEnum(this.hologram.getBillboard()),
-                "alignment", MessageHandler.getNiceEnum(this.hologram.getAlignment()),
                 "text", MessageHandler.PLAIN_TEXT.deserialize(this.hologram.getText()),
                 "shadow", this.hologram.getTextShadow() ? "Enabled" : "Disabled",
                 "background", this.hologram.getBackground() ? "Enabled" : "Disabled",

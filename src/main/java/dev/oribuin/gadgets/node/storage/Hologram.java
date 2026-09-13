@@ -1,5 +1,6 @@
 package dev.oribuin.gadgets.node.storage;
 
+import com.ibm.icu.number.Scale;
 import dev.oribuin.gadgets.node.impl.HologramProjector;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -10,11 +11,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.util.Transformation;
+import org.joml.Vector3f;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.UUID;
 
-import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ALIGNMENT;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BACKGROUND;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_BILLBOARD;
 import static dev.oribuin.gadgets.util.PersistenceUtil.HOLOGRAM_ENTITY;
@@ -42,8 +43,7 @@ public class Hologram {
     private String text;
     private Boolean background;
     private Display.Billboard billboard;
-    private TextDisplay.TextAlignment alignment;
-    private Double scale;
+    private Float scale;
     private Boolean textShadow;
     private Rotation rotation;
     private TextDisplay display;
@@ -59,21 +59,19 @@ public class Hologram {
         this.text = text;
         this.background = true;
         this.billboard = Display.Billboard.VERTICAL;
-        this.alignment = TextDisplay.TextAlignment.CENTER;
         this.rotation = Rotation.NORTH;
-        this.scale = 1.0;
+        this.scale = 1.0f;
         this.textShadow = true;
         this.display = null;
     }
-    
+
     public static Hologram from(HologramProjector projector) {
         Location position = projector.getValue(HOLOGRAM_POSITION);
         String text = projector.getValue(HOLOGRAM_TEXT);
         Hologram hologram = new Hologram(position, text);
         hologram.setBackground(projector.getValue(HOLOGRAM_BACKGROUND, true));
         hologram.setBillboard(projector.getValue(HOLOGRAM_BILLBOARD, Display.Billboard.VERTICAL));
-        hologram.setAlignment(projector.getValue(HOLOGRAM_ALIGNMENT, TextDisplay.TextAlignment.CENTER));
-        hologram.setScale(projector.getValue(HOLOGRAM_SCALE, 1.0));
+        hologram.setScale(projector.getValue(HOLOGRAM_SCALE, 1.0f));
         hologram.setTextShadow(projector.getValue(HOLOGRAM_SHADOW, true));
         hologram.setRotation(projector.getValue(HOLOGRAM_ROTATION, Rotation.NORTH));
 
@@ -93,16 +91,25 @@ public class Hologram {
         if (this.display == null || this.display.isDead()) {
             this.display = this.location.getWorld().spawn(this.location, TextDisplay.class);
         }
-        
+
         this.rotation.apply(this.location);
         this.display.teleport(this.location);
         this.display.text(MiniMessage.builder().tags(RESOLVER).build().deserialize(this.text));
-        this.display.setDefaultBackground(this.background);
+        this.display.setDefaultBackground(false);
+        this.display.setBackgroundColor(this.background ? DEFAULT_BACKGROUND : null);
         this.display.setBillboard(this.billboard);
-        this.display.setDisplayWidth((float) Math.clamp(this.scale, 0.5, 2.0));
-        this.display.setDisplayHeight((float) Math.clamp(this.scale, 0.5, 2.0));
+
+        
+        Transformation existing = this.display.getTransformation();
+        float scale = Math.clamp(this.scale, 0.5f, 2.0f);
+        this.display.setTransformation(new Transformation(
+                existing.getTranslation(),
+                existing.getLeftRotation(),
+                new Vector3f(scale, scale, scale),
+                existing.getRightRotation()
+        ));
         this.display.setShadowed(this.textShadow);
-        this.display.setAlignment(this.alignment);
+        this.display.setAlignment(TextDisplay.TextAlignment.CENTER);
     }
 
     public enum Rotation {
@@ -162,19 +169,11 @@ public class Hologram {
         this.billboard = billboard;
     }
 
-    public TextDisplay.TextAlignment getAlignment() {
-        return alignment;
-    }
-
-    public void setAlignment(TextDisplay.TextAlignment alignment) {
-        this.alignment = alignment;
-    }
-
-    public Double getScale() {
+    public Float getScale() {
         return scale;
     }
 
-    public void setScale(Double scale) {
+    public void setScale(Float scale) {
         this.scale = scale;
     }
 

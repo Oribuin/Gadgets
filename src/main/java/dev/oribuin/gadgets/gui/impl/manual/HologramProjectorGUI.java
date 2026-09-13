@@ -18,11 +18,11 @@ import dev.oribuin.gadgets.util.MessageHandler;
 import dev.oribuin.gadgets.util.Placeholders;
 import dev.triumphteam.gui.guis.Gui;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -80,29 +80,6 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
 
             pendingHologram.put(player.getUniqueId(), block);
             this.getConfig().getChangeText().send(player);
-            player.closeInventory();
-        }));
-        // endregion
-        // region Change Text Alignment
-        GuiIcon textAlignment = this.getConfig().getTextAlignment();
-        gui.setItem(textAlignment.getSlots(), textAlignment.withAction(placeholders, event -> {
-            event.setCancelled(true);
-            if (!(event.getWhoClicked() instanceof Player player)) return;
-
-            HologramProjector projector = this.projectorSupplier.get();
-            Block block = projector.getBlock();
-            if (block == null) {
-                player.closeInventory();
-                return;
-            }
-
-            Hologram hologram = projector.getHologram();
-            TextDisplay.TextAlignment current = hologram.getAlignment();
-            TextDisplay.TextAlignment[] values = TextDisplay.TextAlignment.values();
-            int nextOrdinal = (current.ordinal() + 1) % values.length;
-            TextDisplay.TextAlignment next = values[nextOrdinal];
-            hologram.setAlignment(next);
-            projector.update(hologram);
             player.closeInventory();
         }));
         // endregion
@@ -181,13 +158,13 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
             }
 
             Hologram hologram = projector.getHologram();
-            double scale = hologram.getScale();
+            float scale = hologram.getScale();
 
-            if (event.isLeftClick()) scale = Math.min(5.0, scale + 0.25);
-            if (event.isRightClick()) scale = Math.max(0.5, scale - 0.25);
+            if (event.isLeftClick()) scale = Math.min(scale + 0.1f, 2.0f);
+            if (event.isRightClick()) scale = Math.max(scale - 0.1f, 0.5f);
             hologram.setScale(scale);
             projector.update(hologram);
-            
+
             new HologramProjectorGUI(plugin, this.projectorSupplier).open(player);
         }));
         // endregion
@@ -214,8 +191,64 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
             player.closeInventory();
         }));
         // endregion
+        // region place reposition type
+        this.reposition(this.getConfig().getUpPositionX(), placeholders, RepositionType.X, 0.1, 0.5);
+        this.reposition(this.getConfig().getUpPositionY(), placeholders, RepositionType.Y, 0.1, 0.5);
+        this.reposition(this.getConfig().getUpPositionZ(), placeholders, RepositionType.Z, 0.1, 0.5);
+        // negative values
+        this.reposition(this.getConfig().getDownPositionX(), placeholders, RepositionType.X, -0.1, -0.5);
+        this.reposition(this.getConfig().getDownPositionY(), placeholders, RepositionType.Y, -0.1, -0.5);
+        this.reposition(this.getConfig().getDownPositionZ(), placeholders, RepositionType.Z, -0.1, -0.5);
+        // endregion
     }
 
+    /**
+     * Place an item for the repositioning of the hologram
+     *
+     * @param icon           The icon to place
+     * @param placeholders   The placeholders for the icon
+     * @param repositionType Whether moving on the x/y/z axis
+     * @param leftAmount     The amount to increase/decrease if left-clicked
+     * @param rightAmount    The amount to increase/decrease if right-clicked
+     */
+    private void reposition(GuiIcon icon, Placeholders placeholders, RepositionType repositionType, double leftAmount, double rightAmount) {
+        gui.setItem(icon.getSlots(), icon.withAction(placeholders, event -> {
+            event.setCancelled(true);
+            if (!(event.getWhoClicked() instanceof Player player)) return;
+
+            HologramProjector projector = this.projectorSupplier.get();
+            Block block = projector.getBlock();
+            if (block == null) {
+                player.closeInventory();
+                return;
+            }
+
+            double amount = event.isLeftClick() ? leftAmount : rightAmount;
+            double x = repositionType == RepositionType.X ? amount : 0;
+            double y = repositionType == RepositionType.Y ? amount : 0;
+            double z = repositionType == RepositionType.Z ? amount : 0;
+            Hologram hologram = projector.getHologram();
+
+            Location clone = hologram.getLocation().clone();
+            clone.add(x, y, z);
+
+            // don't let the hologram move too far
+            if (clone.distance(projector.getBlock().getLocation()) >= 3) {
+                this.getConfig().getMaxDistance().send(player);
+                player.closeInventory();
+                return;
+            }
+
+            hologram.setLocation(clone);
+            projector.update(hologram);
+
+            new HologramProjectorGUI(plugin, this.projectorSupplier).open(player);
+        }));
+    }
+
+    private enum RepositionType {
+        X, Y, Z
+    }
 
     public static class HologramTextListener implements Listener {
 
@@ -301,6 +334,7 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
         private TextMessage cancelledText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>You have cancelled setting the hologram text");
         private TextMessage changedText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>You have changed the hologram text: <#93bc80><text>").papi(false);
         private TextMessage changeText = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>Enter your desired hologram text in the chat");
+        private TextMessage maxDistance = new TextMessage("<#93bc80><b>Hologram</b> <dark_gray>▎ <white>The hologram cannot move further than this");
 
         private GuiIcon textChange = ItemConstruct.of(Material.NAME_TAG)
                 .setName("<#93bc80><b>Change Text")
@@ -310,13 +344,13 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
                 )
                 .asMenuItem(10);
 
-        private GuiIcon textAlignment = ItemConstruct.of(Material.PAINTING)
-                .setName("<#93bc80><b>Alignment")
+        private GuiIcon textRotation = ItemConstruct.of(Material.COMPASS)
+                .setName("<#93bc80><b>Text Rotation")
                 .setLore(
                         "",
-                        "<#93bc80>▎ <white>Current: <#93bc80><alignment>",
+                        "<#93bc80>▎ <white>Current: <#93bc80><rotation>",
                         "",
-                        "<white>⏩ <#93bc80>Left click<white> to change alignment"
+                        "<white>⏩ <#93bc80>Left click<white> to rotate the hologram"
                 )
                 .asMenuItem(11);
 
@@ -359,16 +393,79 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
                 )
                 .asMenuItem(29);
 
-
-        private GuiIcon textRotation = ItemConstruct.of(Material.TINTED_GLASS)
-                .setName("<#93bc80><b>Text Rotation")
+        // region Position Stuff
+        private GuiIcon upPositionX = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬆ <#93bc80><b>Position X</b> <white>⬆")
                 .setLore(
                         "",
-                        "<#93bc80>▎ <white>Current: <#93bc80><rotation>",
+                        "<#93bc80>▎ <white>Moves the hologram +0.1 on the X Axis",
                         "",
-                        "<white>⏩ <#93bc80>Left click<white> to rotate the hologram"
+                        "<white>⏩ <#93bc80>Left click<white> to move by +0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by +0.5"
                 )
-                .asMenuItem(22);
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmQ5Mjg3NjE2MzQzZDgzM2U5ZTczMTcxNTljYWEyY2IzZTU5NzQ1MTEzOTYyYzEzNzkwNTJjZTQ3ODg4NGZhIn19fQ=="))
+                .asMenuItem(14);
+
+        private GuiIcon downPositionX = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬇ <#93bc80><b>Position X</b> <white>⬇")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Moves the hologram",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to move by -0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by -0.5"
+                )
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTM4NTJiZjYxNmYzMWVkNjdjMzdkZTRiMGJhYTJjNWY4ZDhmY2E4MmU3MmRiY2FmY2JhNjY5NTZhODFjNCJ9fX0="))
+                .asMenuItem(32);
+
+        private GuiIcon upPositionY = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬆ <#93bc80><b>Position Y</b> <white>⬆")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Moves the hologram",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to move by +0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by +0.5"
+                )
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWRhMDI3NDc3MTk3YzZmZDdhZDMzMDE0NTQ2ZGUzOTJiNGE1MWM2MzRlYTY4YzhiN2JjYzAxMzFjODNlM2YifX19"))
+                .asMenuItem(15);
+
+        private GuiIcon downPositionY = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬇ <#93bc80><b>Position Y</b> <white>⬇")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Moves the hologram",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to move by -0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by -0.5"
+                )
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmY3NDE2Y2U5ZTgyNmU0ODk5YjI4NGJiMGFiOTQ4NDNhOGY3NTg2ZTUyYjcxZmMzMTI1ZTAyODZmOTI2YSJ9fX0="))
+                .asMenuItem(33);
+
+        private GuiIcon upPositionZ = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬆ <#93bc80><b>Position Z</b> <white>⬆")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Moves the hologram",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to move by +0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by +0.5"
+                )
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjJmYzIzODY2NTIzY2FhYThhOTUzNDU2NjEyN2E2ZjgzODlhZjNlNzZiOGUzYzMzYzI0NzNjYmE2ODg5YzQifX19"))
+                .asMenuItem(16);
+
+        private GuiIcon downPositionZ = ItemConstruct.of(Material.PLAYER_HEAD)
+                .setName("<white>⬇ <#93bc80><b>Position Z</b> <white>⬇")
+                .setLore(
+                        "",
+                        "<#93bc80>▎ <white>Moves the hologram",
+                        "",
+                        "<white>⏩ <#93bc80>Left click<white> to move by -0.1",
+                        "<white>⏩ <#93bc80>Right click<white> to move by -0.5"
+                )
+                .setProperty(ConstructType.TEXTURE, x -> x.setValue("base64-eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjBkMWRmODA0NmYwYjVkOTM0YzNlMDU3OThlYWNmZWVhNmQ3YjU5NWRiZTI2ZGViZjdkYjlhY2M4YzRmYTc5OCJ9fX0="))
+                .asMenuItem(34);
+        // endregion
 
         public TextMessage getCancelledText() {
             return cancelledText;
@@ -386,8 +483,8 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
             return changeText;
         }
 
-        public GuiIcon getTextAlignment() {
-            return textAlignment;
+        public TextMessage getMaxDistance() {
+            return maxDistance;
         }
 
         public GuiIcon getTextShadow() {
@@ -408,6 +505,30 @@ public final class HologramProjectorGUI extends PluginMenu<HologramProjectorGUI.
 
         public GuiIcon getTextRotation() {
             return textRotation;
+        }
+
+        public GuiIcon getUpPositionX() {
+            return upPositionX;
+        }
+
+        public GuiIcon getDownPositionX() {
+            return downPositionX;
+        }
+
+        public GuiIcon getUpPositionY() {
+            return upPositionY;
+        }
+
+        public GuiIcon getDownPositionY() {
+            return downPositionY;
+        }
+
+        public GuiIcon getUpPositionZ() {
+            return upPositionZ;
+        }
+
+        public GuiIcon getDownPositionZ() {
+            return downPositionZ;
         }
     }
 //

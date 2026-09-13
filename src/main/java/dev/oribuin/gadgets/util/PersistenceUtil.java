@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jeff_media.morepersistentdatatypes.DataType.BOOLEAN;
 import static com.jeff_media.morepersistentdatatypes.DataType.DOUBLE;
+import static com.jeff_media.morepersistentdatatypes.DataType.FLOAT;
 import static com.jeff_media.morepersistentdatatypes.DataType.INTEGER;
 import static com.jeff_media.morepersistentdatatypes.DataType.ITEM_STACK;
 import static com.jeff_media.morepersistentdatatypes.DataType.LOCATION;
@@ -92,8 +93,7 @@ public final class PersistenceUtil {
     public static GadgetType<String, String> HOLOGRAM_TEXT = register("hologram_text", STRING); // List<Component>
     public static GadgetType<Byte, Boolean> HOLOGRAM_BACKGROUND = register("hologram_background", BOOLEAN); // Boolean
     public static GadgetType<String, Display.Billboard> HOLOGRAM_BILLBOARD = register("hologram_billboard", DataType.asEnum(Display.Billboard.class));  // Billboard
-    public static GadgetType<String, TextDisplay.TextAlignment> HOLOGRAM_ALIGNMENT = register("hologram_alignment", DataType.asEnum(TextDisplay.TextAlignment.class)); // TextAlignment
-    public static GadgetType<Double, Double> HOLOGRAM_SCALE = register("hologram_scale", DOUBLE); // Double (max 2.0)
+    public static GadgetType<Float, Float> HOLOGRAM_SCALE = register("hologram_scale", FLOAT); // Float (max 2.0)
     public static GadgetType<Byte, Boolean> HOLOGRAM_SHADOW = register("hologram_shadow", BOOLEAN); // Boolean
     public static GadgetType<String, Hologram.Rotation> HOLOGRAM_ROTATION = register("hologram_rotation", DataType.asEnum(Hologram.Rotation.class)); // HologramRotation
     // endregion
